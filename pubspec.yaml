@@ -1,0 +1,39 @@
+name: party_shot_game
+description: A mysterious party shot drinking game.
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  vibration: ^3.1.4
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.2
+  flip_card: ^0.7.0
+  google_fonts: ^6.1.0
+  provider: ^6.0.5
+  audioplayers: ^6.6.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+  flutter_native_splash: ^2.4.7
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/images/card_back.jpg
+    - assets/avatars/  # Bu satır, klasördeki tüm avatarları projeye tanıtır
+    - assets/sounds/
+
+flutter_native_splash:
+  color: "#0F0C20"
+  android: true
+  ios: true
+  fullscreen: true
+  android_12:
+    color: "#0F0C20"
+    image: "assets/images/transparent.png"
