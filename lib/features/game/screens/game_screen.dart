@@ -3,12 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:flip_card/flip_card.dart';
+
 import '../../setup/logic/setup_provider.dart';
 import '../widgets/drink_rain.dart';
-import '../../../data/models/player.dart'; // EKSİK OLAN IMPORT EKLENDİ
+import '../../../data/models/player.dart';
+import '../../../data/models/task_item.dart';
+import '../../../data/task_repository.dart';
 
 class GameScreen extends StatefulWidget {
-  // String yerine Player sınıfını kabul ediyoruz
   final List<Player> players; 
   const GameScreen({super.key, required this.players});
 
@@ -19,12 +21,17 @@ class GameScreen extends StatefulWidget {
 class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
   late AnimationController _rouletteController;
   late Animation<double> _rouletteAnimation;
+  
   int? _highlightedIndex;
   bool _isSelecting = false;
   bool _selectionComplete = false;
   int? _finalWinnerIndex;
 
-  // RENK PALETİ
+  // Oyun Mantığı Değişkenleri
+  int _currentTurn = 1; 
+  TaskItem? _currentTask;
+
+  // Renk Paleti
   static const Color avatarNeonColor = Color(0xFF673AB7); 
   static const Color avatarNeonShadow = Color(0xFF311B92); 
   static const Color cardNeonColor = Color(0xFFE040FB); 
@@ -53,14 +60,31 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
 
     _rouletteAnimation.addStatusListener((status) {
       if (status == AnimationStatus.completed) {
-        setState(() {
-          _isSelecting = false;
-          _selectionComplete = true; 
-          _finalWinnerIndex = _highlightedIndex;
-        });
-        HapticFeedback.vibrate(); 
+        _onSelectionFinished();
       }
     });
+  }
+
+  // Tur Sayısına Göre Seviye Belirleme
+  int _calculateCurrentLevel() {
+    if (_currentTurn <= 10) return 1;      // 1-10 Tur: Seviye 1 (Soft)
+    if (_currentTurn <= 20) return 2;      // 11-20 Tur: Seviye 2 (Medium)
+    return 3;                              // 21+ Tur: Seviye 3 (Hard)
+  }
+
+  void _onSelectionFinished() {
+    setState(() {
+      _isSelecting = false;
+      _selectionComplete = true; 
+      _finalWinnerIndex = _highlightedIndex;
+
+      // Seviyeye göre rastgele görev seçimi
+      final int level = _calculateCurrentLevel();
+      _currentTask = TaskRepository.getRandomTaskByLevel(level);
+      
+      _currentTurn++; // Bir sonraki tur için sayacı artır
+    });
+    HapticFeedback.vibrate(); 
   }
 
   void _startSelection() {
@@ -69,6 +93,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
       _isSelecting = true;
       _selectionComplete = false;
       _finalWinnerIndex = null;
+      _currentTask = null;
     });
     _rouletteController.reset();
     _rouletteController.forward();
@@ -86,10 +111,8 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
       backgroundColor: const Color(0xFF0A0514),
       body: Stack(
         children: [
-          // 1. KATMAN: SÜZÜLEN BARDAKLAR
           const Positioned.fill(child: DrinkRain()),
           
-          // Çıkış Butonu
           Positioned(
             top: 50,
             left: 20,
@@ -117,17 +140,16 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                       angle: angle,
                       radius: rouletteRadius,
                       center: center,
-                      player: widget.players[index], // Player nesnesini gönderiyoruz
+                      player: widget.players[index],
                       isHighlighted: isHighlighted,
                     );
                   }),
 
-                  // KART MERKEZİ 
                   Center(
                     child: GestureDetector(
                       onTap: _selectionComplete ? () {} : null,
                       child: _selectionComplete
-                          ? _buildTaskCard(widget.players[_finalWinnerIndex!].name) // Sadece ismini gönderiyoruz
+                          ? _buildTaskCard(widget.players[_finalWinnerIndex!].name)
                           : _buildNeonMysteryCard(),
                     ),
                   ),
@@ -136,7 +158,6 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
             },
           ),
 
-          // NEON BUTON
           if (!_isSelecting && !_selectionComplete)
             Align(
               alignment: Alignment.bottomCenter,
@@ -201,7 +222,6 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     );
   }
 
-  // Burada String name yerine Player player nesnesi kabul ediliyor
   Widget _buildPlayerSlot({required double angle, required double radius, required Offset center, required Player player, required bool isHighlighted}) {
     final x = center.dx + (radius * 0.85) * cos(angle) - 45; 
     final y = center.dy + (radius * 0.85) * sin(angle) - 55;
@@ -225,12 +245,18 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
             child: CircleAvatar(
               radius: 42,
               backgroundColor: const Color(0xFF140B1F),
-              // Avatar resmini Player nesnesinden çekiyoruz
               backgroundImage: AssetImage(player.avatarPath), 
             ),
           ),
           const SizedBox(height: 8),
-          Text(player.name.toUpperCase(), style: TextStyle(color: isHighlighted ? Colors.white : Colors.white60, fontSize: 10, fontWeight: isHighlighted ? FontWeight.bold : FontWeight.normal)),
+          Text(
+            player.name.toUpperCase(), 
+            style: TextStyle(
+              color: isHighlighted ? Colors.white : Colors.white60, 
+              fontSize: 10, 
+              fontWeight: isHighlighted ? FontWeight.bold : FontWeight.normal
+            )
+          ),
         ],
       ),
     );
@@ -242,7 +268,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
       back: Container(
         width: 150, 
         height: 220, 
-        padding: const EdgeInsets.symmetric(vertical: 10), 
+        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12), 
         decoration: BoxDecoration(
           color: const Color(0xFF140B1F),
           borderRadius: BorderRadius.circular(20),
@@ -255,17 +281,16 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
               playerName, 
               style: const TextStyle(color: cardNeonAccent, fontSize: 18, fontWeight: FontWeight.bold)
             ),
-            const Divider(color: Colors.white10, indent: 15, endIndent: 15),
+            const Divider(color: Colors.white10, height: 20),
             
-            const Expanded(
+            Expanded(
               child: SingleChildScrollView(
-                physics: BouncingScrollPhysics(), 
-                padding: EdgeInsets.symmetric(horizontal: 12),
+                physics: const BouncingScrollPhysics(), 
                 child: Center(
                   child: Text(
-                    "GÖREVİNİ YAP VEYA SHOT AT!", 
+                    _currentTask?.text ?? "Görev Bulunamadı!", 
                     textAlign: TextAlign.center, 
-                    style: TextStyle(color: Colors.white, fontSize: 13, height: 1.3),
+                    style: const TextStyle(color: Colors.white, fontSize: 13, height: 1.4),
                   ),
                 ),
               ),
@@ -314,6 +339,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
 class RouletteLinesPainter extends CustomPainter {
   final int numberOfPlayers;
   RouletteLinesPainter({required this.numberOfPlayers});
+  
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()..color = Colors.white.withOpacity(0.01)..style = PaintingStyle.stroke..strokeWidth = 1;
@@ -321,8 +347,13 @@ class RouletteLinesPainter extends CustomPainter {
     final radius = size.width / 2;
     for (int i = 0; i < numberOfPlayers; i++) {
       final angle = (2 * pi / numberOfPlayers) * i;
-      canvas.drawLine(center + Offset(cos(angle) * radius * 0.7, sin(angle) * radius * 0.7), center + Offset(cos(angle) * radius, sin(angle) * radius), paint);
+      canvas.drawLine(
+        center + Offset(cos(angle) * radius * 0.7, sin(angle) * radius * 0.7), 
+        center + Offset(cos(angle) * radius, sin(angle) * radius), 
+        paint
+      );
     }
   }
+
   @override bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

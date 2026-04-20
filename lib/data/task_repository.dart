@@ -1,4 +1,5 @@
 import 'models/task_item.dart';
+import 'dart:math'; // Rastgele seçim için
 
 class TaskRepository {
   static final List<TaskItem> allTasks = [
@@ -228,4 +229,8 @@ class TaskRepository {
         type: TaskType.group,
         level: 3),
   ];
+  static TaskItem getRandomTaskByLevel(int level) {
+    final filteredTasks = allTasks.where((task) => task.level == level).toList();
+    return filteredTasks[Random().nextInt(filteredTasks.length)];
+  }
 }
