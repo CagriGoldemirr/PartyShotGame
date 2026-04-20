@@ -152,8 +152,8 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
 
   Widget _buildNeonMysteryCard() {
     return Container(
-      width: 150, 
-      height: 220, 
+      width: 95, 
+      height: 145, 
       decoration: BoxDecoration(
         color: const Color(0xFF140B1F),
         borderRadius: BorderRadius.circular(15),
@@ -171,7 +171,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
             "?",
             style: TextStyle(
               color: Colors.white,
-              fontSize: 80, 
+              fontSize: 90, 
               fontWeight: FontWeight.bold,
             ),
           ),

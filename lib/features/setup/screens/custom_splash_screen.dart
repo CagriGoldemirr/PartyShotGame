@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../game/widgets/drink_rain.dart';
 import 'start_screen.dart';
+import '../../game/screens/widgets/partyshot_logo.dart';
+
 
 class CustomSplashScreen extends StatefulWidget {
   const CustomSplashScreen({super.key});
@@ -34,15 +36,8 @@ class _CustomSplashScreenState extends State<CustomSplashScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Text(
-                  "PartyShot",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 48,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 5,
-                  ),
-                ),
+                  const PartyShotLogo(fontSize: 48, iconSize: 40), // Logo eklendi
+                
                 const SizedBox(height: 30),
                 CircularProgressIndicator(
                   valueColor: AlwaysStoppedAnimation<Color>(Colors.blueAccent.withOpacity(0.8)),
