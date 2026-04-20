@@ -262,13 +262,13 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildTaskCard(String playerName) {
+ Widget _buildTaskCard(String playerName) {
     return FlipCard(
       front: _buildNeonMysteryCard(),
       back: Container(
         width: 150, 
         height: 220, 
-        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12), 
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12), 
         decoration: BoxDecoration(
           color: const Color(0xFF140B1F),
           borderRadius: BorderRadius.circular(20),
@@ -296,9 +296,38 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
               ),
             ),
             
-            TextButton(
-              onPressed: () => setState(() => _selectionComplete = false), 
-              child: const Text("YENİ TUR", style: TextStyle(color: cardNeonColor, fontSize: 13, fontWeight: FontWeight.bold))
+            const SizedBox(height: 10),
+
+            // YENİ VE DAHA BELİRGİN BUTON TASARIMI
+            GestureDetector(
+              onTap: () => setState(() => _selectionComplete = false),
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(vertical: 10),
+                decoration: BoxDecoration(
+                  color: cardNeonColor.withOpacity(0.15),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: cardNeonColor, width: 1.5),
+                  boxShadow: [
+                    BoxShadow(
+                      color: cardNeonColor.withOpacity(0.3),
+                      blurRadius: 8,
+                      spreadRadius: 1,
+                    ),
+                  ],
+                ),
+                child: const Center(
+                  child: Text(
+                    "YENİ TUR",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1.1,
+                    ),
+                  ),
+                ),
+              ),
             ),
           ],
         ),
