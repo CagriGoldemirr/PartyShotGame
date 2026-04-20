@@ -9,10 +9,7 @@ avatar seçme
 
 animasyon ekle.
 
-oyunun ismini daha farklı olsun  fontu vs görsellerle destekler yanlarınashot bardağı koy renkli olsunh haraket etsin
 
 
 oyuncu eklme ekranı ile play ekrnaı arasına ek bir ekran daha koy oyunu anlat
 
-görev kısmında garip şeyler cıkıyo
-her oyuncu avatarını seçebilsin.bunun için ekrana yazdır.

@@ -31,7 +31,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
   int _currentTurn = 1; 
   TaskItem? _currentTask;
 
-  // Renk Paleti
+  // Renk Paleti (Neon Tema)
   static const Color avatarNeonColor = Color(0xFF673AB7); 
   static const Color avatarNeonShadow = Color(0xFF311B92); 
   static const Color cardNeonColor = Color(0xFFE040FB); 
@@ -53,6 +53,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     _rouletteAnimation.addListener(() {
       if (_isSelecting) {
         setState(() {
+          // Rulet dönerken ışığın oyuncular üzerinde gezme efekti
           _highlightedIndex = (_rouletteAnimation.value * widget.players.length * 6).floor() % widget.players.length;
         });
       }
@@ -65,11 +66,11 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     });
   }
 
-  // Tur Sayısına Göre Seviye Belirleme
+  // Tur Sayısına Göre Seviye Belirleme (1-10: S1, 11-20: S2, 21+: S3)
   int _calculateCurrentLevel() {
-    if (_currentTurn <= 10) return 1;      // 1-10 Tur: Seviye 1 (Soft)
-    if (_currentTurn <= 20) return 2;      // 11-20 Tur: Seviye 2 (Medium)
-    return 3;                              // 21+ Tur: Seviye 3 (Hard)
+    if (_currentTurn <= 10) return 1;
+    if (_currentTurn <= 20) return 2;
+    return 3;
   }
 
   void _onSelectionFinished() {
@@ -82,7 +83,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
       final int level = _calculateCurrentLevel();
       _currentTask = TaskRepository.getRandomTaskByLevel(level);
       
-      _currentTurn++; // Bir sonraki tur için sayacı artır
+      _currentTurn++; // Tur sayacını artır
     });
     HapticFeedback.vibrate(); 
   }
@@ -111,17 +112,24 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
       backgroundColor: const Color(0xFF0A0514),
       body: Stack(
         children: [
+          // 1. KATMAN: SÜZÜLEN BARDAKLAR
           const Positioned.fill(child: DrinkRain()),
           
+          // 2. KATMAN: GERİ BUTONU (StartScreen'e Dönüş)
           Positioned(
             top: 50,
-            left: 20,
+            left: 15,
             child: IconButton(
-              icon: const Icon(Icons.close, color: Colors.white12, size: 28),
-              onPressed: () => _showExitDialog(context),
+              icon: const Icon(
+                Icons.arrow_back_ios_new_rounded, 
+                color: Colors.white30, 
+                size: 24
+              ),
+              onPressed: () => Navigator.pop(context),
             ),
           ),
 
+          // 3. KATMAN: RULET VE KART ALANI
           LayoutBuilder(
             builder: (context, constraints) {
               final center = Offset(constraints.maxWidth / 2, constraints.maxHeight / 2);
@@ -132,6 +140,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                 children: [
                   _buildRouletteBackground(center, rouletteRadius),
 
+                  // Oyuncu Slotları
                   ...List.generate(widget.players.length, (index) {
                     final angle = (2 * pi / widget.players.length) * index;
                     final isHighlighted = _highlightedIndex == index;
@@ -145,19 +154,18 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                     );
                   }),
 
+                  // MERKEZDEKİ KART
                   Center(
-                    child: GestureDetector(
-                      onTap: _selectionComplete ? () {} : null,
-                      child: _selectionComplete
-                          ? _buildTaskCard(widget.players[_finalWinnerIndex!].name)
-                          : _buildNeonMysteryCard(),
-                    ),
+                    child: _selectionComplete
+                        ? _buildTaskCard(widget.players[_finalWinnerIndex!].name)
+                        : _buildNeonMysteryCard(),
                   ),
                 ],
               );
             },
           ),
 
+          // 4. KATMAN: BAŞLAT BUTONU
           if (!_isSelecting && !_selectionComplete)
             Align(
               alignment: Alignment.bottomCenter,
@@ -170,6 +178,8 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
       ),
     );
   }
+
+  // --- WIDGET BÖLÜMLERİ ---
 
   Widget _buildNeonMysteryCard() {
     return Container(
@@ -196,6 +206,70 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
               fontWeight: FontWeight.bold,
             ),
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTaskCard(String playerName) {
+    return FlipCard(
+      front: _buildNeonMysteryCard(),
+      back: Container(
+        width: 150, 
+        height: 220, 
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12), 
+        decoration: BoxDecoration(
+          color: const Color(0xFF140B1F),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: cardNeonColor.withOpacity(0.8), width: 3),
+          boxShadow: [BoxShadow(color: cardNeonColor.withOpacity(0.4), blurRadius: 25)],
+        ),
+        child: Column(
+          children: [
+            Text(
+              playerName, 
+              style: const TextStyle(color: cardNeonAccent, fontSize: 18, fontWeight: FontWeight.bold)
+            ),
+            const Divider(color: Colors.white10, height: 20),
+            
+            Expanded(
+              child: SingleChildScrollView(
+                physics: const BouncingScrollPhysics(), 
+                child: Center(
+                  child: Text(
+                    _currentTask?.text ?? "Görev Bulunamadı!", 
+                    textAlign: TextAlign.center, 
+                    style: const TextStyle(color: Colors.white, fontSize: 13, height: 1.4),
+                  ),
+                ),
+              ),
+            ),
+            
+            const SizedBox(height: 10),
+
+            // YENİ VE BELİRGİN TUR BUTONU
+            GestureDetector(
+              onTap: () => setState(() => _selectionComplete = false),
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(vertical: 10),
+                decoration: BoxDecoration(
+                  color: cardNeonColor.withOpacity(0.15),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: cardNeonColor, width: 1.5),
+                  boxShadow: [
+                    BoxShadow(color: cardNeonColor.withOpacity(0.3), blurRadius: 8),
+                  ],
+                ),
+                child: const Center(
+                  child: Text(
+                    "YENİ TUR",
+                    style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -262,105 +336,11 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     );
   }
 
- Widget _buildTaskCard(String playerName) {
-    return FlipCard(
-      front: _buildNeonMysteryCard(),
-      back: Container(
-        width: 150, 
-        height: 220, 
-        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12), 
-        decoration: BoxDecoration(
-          color: const Color(0xFF140B1F),
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: cardNeonColor.withOpacity(0.8), width: 3),
-          boxShadow: [BoxShadow(color: cardNeonColor.withOpacity(0.4), blurRadius: 25)],
-        ),
-        child: Column(
-          children: [
-            Text(
-              playerName, 
-              style: const TextStyle(color: cardNeonAccent, fontSize: 18, fontWeight: FontWeight.bold)
-            ),
-            const Divider(color: Colors.white10, height: 20),
-            
-            Expanded(
-              child: SingleChildScrollView(
-                physics: const BouncingScrollPhysics(), 
-                child: Center(
-                  child: Text(
-                    _currentTask?.text ?? "Görev Bulunamadı!", 
-                    textAlign: TextAlign.center, 
-                    style: const TextStyle(color: Colors.white, fontSize: 13, height: 1.4),
-                  ),
-                ),
-              ),
-            ),
-            
-            const SizedBox(height: 10),
-
-            // YENİ VE DAHA BELİRGİN BUTON TASARIMI
-            GestureDetector(
-              onTap: () => setState(() => _selectionComplete = false),
-              child: Container(
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(vertical: 10),
-                decoration: BoxDecoration(
-                  color: cardNeonColor.withOpacity(0.15),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: cardNeonColor, width: 1.5),
-                  boxShadow: [
-                    BoxShadow(
-                      color: cardNeonColor.withOpacity(0.3),
-                      blurRadius: 8,
-                      spreadRadius: 1,
-                    ),
-                  ],
-                ),
-                child: const Center(
-                  child: Text(
-                    "YENİ TUR",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 1.1,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   Widget _buildRouletteBackground(Offset center, double radius) {
     return Container(
       width: radius * 2.2, height: radius * 2.2,
       decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: Colors.white.withOpacity(0.01))),
       child: CustomPaint(painter: RouletteLinesPainter(numberOfPlayers: widget.players.length)),
-    );
-  }
-
-  void _showExitDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: const Color(0xFF140B1F),
-        title: const Text("Oyunu Sıfırla", style: TextStyle(color: Colors.white)),
-        content: const Text("Sıfırlamak istiyor musunuz?", style: TextStyle(color: Colors.white70)),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text("İPTAL")),
-          TextButton(
-            onPressed: () {
-              context.read<SetupProvider>().resetGame();
-              Navigator.pop(context); Navigator.pop(context);
-            },
-            child: const Text("SIFIRLA", style: TextStyle(color: Colors.redAccent)),
-          ),
-        ],
-      ),
     );
   }
 }
@@ -378,7 +358,7 @@ class RouletteLinesPainter extends CustomPainter {
       final angle = (2 * pi / numberOfPlayers) * i;
       canvas.drawLine(
         center + Offset(cos(angle) * radius * 0.7, sin(angle) * radius * 0.7), 
-        center + Offset(cos(angle) * radius, sin(angle) * radius), 
+        center + Offset(cos(angle) * radius, size.width / 2), 
         paint
       );
     }
