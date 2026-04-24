@@ -228,9 +228,25 @@ class TaskRepository {
         text: "Herkes kadehini doldursun! Sağındaki oyuncu senin adına bir itirafta bulunsun, eğer doğruysa içkini fondip yap!",
         type: TaskType.group,
         level: 3),
+  
+
+    TaskItem(text: "KADAKALTI: Masadaki herkes 2 shot içer, sen hariç!", type: TaskType.joker, level: 4),
+    TaskItem(text: "DİKTATÖR!!: İstediğin oyuncuya istediğin cezayı verebilrsin.Yapamazsa 2 shot atar o oyuncu!", type: TaskType.joker, level: 4),
+    TaskItem(text: "DOĞRULUK!!:Diğer oyuncular sana ahlaksız,özel bir soru sorar,cevapyalamazsan 2 shot iç", type: TaskType.joker, level: 4),
+        
   ];
   static TaskItem getRandomTaskByLevel(int level) {
-    final filteredTasks = allTasks.where((task) => task.level == level).toList();
-    return filteredTasks[Random().nextInt(filteredTasks.length)];
+
+    final List<TaskItem> tasks = allTasks.where((t) => t.level == level).toList();
+
+    if (tasks.isEmpty){
+     return allTasks[Random().nextInt(allTasks.length)];
+    }
+
+    return tasks[Random().nextInt(tasks.length)];
   }
+
+  
+// Level 4 olarak işaretliyoruz ki normal level döngüsüne girmesin, 
+// sadece özel %10 şansla çekilsin.
 }

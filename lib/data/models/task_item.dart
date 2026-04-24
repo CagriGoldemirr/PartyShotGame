@@ -1,13 +1,9 @@
-enum TaskType { single, group }
+enum TaskType { single, group, joker } // joker eklendi
 
 class TaskItem {
   final String text;
   final TaskType type;
-  final int level; // 1: Soft, 2: Medium, 3: Hard
+  final int level; 
 
-  TaskItem({
-    required this.text,
-    required this.type,
-    required this.level,
-  });
+  TaskItem({required this.text, required this.type, required this.level});
 }
