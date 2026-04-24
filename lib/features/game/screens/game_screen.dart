@@ -2,55 +2,55 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import '../../../data/models/player.dart';
-import '../../../data/task_repository.dart';
-import '../../setup/logic/setup_provider.dart';
+import 'package:flip_card/flip_card.dart';
 
-// Eğer burada kırmızı çizgi çıkarsa başına '../' eklemeyi veya silmeyi dene
-//import '../widgets/partyshot_logo.dart';
+import '../../setup/logic/setup_provider.dart';
 import '../widgets/drink_rain.dart';
-import '../widgets/magic_dust.dart';
+import '../../../data/models/player.dart';
+import '../../../data/models/task_item.dart';
+import '../../../data/task_repository.dart';
 
 class GameScreen extends StatefulWidget {
-  final List<Player> players;
+  final List<Player> players; 
   const GameScreen({super.key, required this.players});
 
   @override
   State<GameScreen> createState() => _GameScreenState();
 }
 
-class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
-  int _highlightedIndex = 0;
-  int _finalWinnerIndex = -1;
-  int? _lastWinnerIndex; // Yalnızca bir kez tanımlandı
-  bool _isSpinning = false;
-  bool _isCardRevealed = false;
-  String _currentTask = "";
-  
-  late AnimationController _breathingController;
+class _GameScreenState extends State<GameScreen> {
+  int? _highlightedIndex;
+  bool _isSelecting = false;
+  bool _selectionComplete = false;
+  int? _finalWinnerIndex;
+  int? _lastWinnerIndex;
 
-  @override
-  void initState() {
-    super.initState();
-    _breathingController = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 2),
-    )..repeat(reverse: true);
+  // Oyun Mantığı Değişkenleri
+  int _currentTurn = 1; 
+  TaskItem? _currentTask;
+
+  // Renk Paleti (Neon Tema)
+  static const Color avatarNeonColor = Color(0xFF673AB7); 
+  static const Color avatarNeonShadow = Color(0xFF311B92); 
+  static const Color cardNeonColor = Color(0xFFE040FB); 
+  static const Color cardNeonAccent = Color(0xFFF48FB1); 
+
+  // Tur Sayısına Göre Seviye Belirleme (1-20: S1, 21-38: S2, 39+: S3)
+  int _calculateCurrentLevel() {
+    if (_currentTurn <= 20) return 1;
+    if (_currentTurn <= 38) return 2;
+    return 3;
   }
 
-  @override
-  void dispose() {
-    _breathingController.dispose();
-    super.dispose();
-  }
-
-  Future<void> _startLuckySelection() async {
-    if (_isSpinning) return;
+  // Kaotik Seçim ve Görev Çekme Mantığı
+  Future<void> _startSelection() async {
+    if (_isSelecting) return;
 
     setState(() {
-      _isSpinning = true;
-      _isCardRevealed = false;
-      _finalWinnerIndex = -1;
+      _isSelecting = true;
+      _selectionComplete = false;
+      _finalWinnerIndex = null;
+      _currentTask = null;
     });
 
     int totalSteps = 25 + Random().nextInt(15);
@@ -64,7 +64,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     
     _lastWinnerIndex = newWinner;
 
-    // Kaotik Işık Animasyonu
+    // Rulet Animasyonu: Oyuncular üzerinde kaotik sıçrama
     while (currentStep < totalSteps) {
       await Future.delayed(Duration(milliseconds: 50 + (currentStep * 10)));
       
@@ -80,17 +80,18 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
       currentStep++;
     }
 
+    // Seçim Bitti -> Verileri Güncelle
     setState(() {
       _highlightedIndex = newWinner;
       _finalWinnerIndex = newWinner;
-      _isSpinning = false;
+      _isSelecting = false;
+      _selectionComplete = true;
       
-      // GÖREV ÇEKME İŞLEMİ (TaskItem)
-      final selectedTaskItem = TaskRepository.allTasks[Random().nextInt(TaskRepository.allTasks.length)];
+      // Seviyeyi hesapla ve havuzdan uygun görevi çek
+      final int level = _calculateCurrentLevel();
+      _currentTask = TaskRepository.getRandomTaskByLevel(level);
       
-      // ÖNEMLİ DİKKAT: .text yazdım. Eğer TaskItem modelinde görevi tutan isim 
-      // 'description' veya 'gorev' ise buradaki .text kısmını ona göre değiştir.
-      _currentTask = selectedTaskItem.text; 
+      _currentTurn++; // Bir sonraki el için turu artır
     });
 
     HapticFeedback.heavyImpact();
@@ -99,241 +100,251 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF130A21),
+      backgroundColor: const Color(0xFF0A0514),
       body: Stack(
         children: [
-          const DrinkRain(),
-          const Positioned.fill(child: MagicDust()),
+          const Positioned.fill(child: DrinkRain()),
           
           Positioned(
             top: 50,
-            left: 20,
+            left: 15,
             child: IconButton(
-              icon: const Icon(Icons.home_rounded, color: Colors.white70, size: 30),
-              onPressed: () => _showResetDialog(context),
+              icon: const Icon(
+                Icons.arrow_back_ios_new_rounded, 
+                color: Colors.white30, 
+                size: 24
+              ),
+              onPressed: () => Navigator.pop(context),
             ),
           ),
 
-          Center(
-            child: SizedBox(
-              width: double.infinity,
-              height: double.infinity,
-              child: Stack(
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final center = Offset(constraints.maxWidth / 2, constraints.maxHeight / 2);
+              final rouletteRadius = constraints.maxWidth * 0.45; 
+
+              return Stack(
                 alignment: Alignment.center,
                 children: [
+                  _buildRouletteBackground(center, rouletteRadius),
+
                   ...List.generate(widget.players.length, (index) {
-                    final double angle = (index * 2 * pi / widget.players.length) - pi / 2;
-                    const double radius = 150;
-                    final x = radius * cos(angle);
-                    final y = radius * sin(angle);
+                    final angle = (2 * pi / widget.players.length) * index;
                     final isHighlighted = _highlightedIndex == index;
 
-                    return Transform.translate(
-                      offset: Offset(x, y),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          AnimatedContainer(
-                            duration: const Duration(milliseconds: 200),
-                            padding: const EdgeInsets.all(4),
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              boxShadow: [
-                                if (isHighlighted)
-                                  BoxShadow(
-                                    color: const Color(0xFF673AB7).withOpacity(0.9),
-                                    blurRadius: 25,
-                                    spreadRadius: 8,
-                                  ),
-                              ],
-                              border: Border.all(
-                                color: isHighlighted ? const Color(0xFFB39DDB) : Colors.transparent,
-                                width: 2,
-                              ),
-                            ),
-                            child: CircleAvatar(
-                              radius: 42,
-                              backgroundImage: AssetImage(widget.players[index].avatarPath),
-                              backgroundColor: Colors.transparent,
-                            ),
-                          ),
-                          const SizedBox(height: 6),
-                          Text(
-                            widget.players[index].name,
-                            style: TextStyle(
-                              color: isHighlighted ? Colors.white : Colors.white60,
-                              fontSize: 12,
-                              fontWeight: isHighlighted ? FontWeight.bold : FontWeight.normal,
-                              shadows: [
-                                if (isHighlighted)
-                                  const BoxShadow(
-                                    color: Color(0xFFB39DDB),
-                                    blurRadius: 10,
-                                  ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
+                    return _buildPlayerSlot(
+                      angle: angle,
+                      radius: rouletteRadius,
+                      center: center,
+                      player: widget.players[index],
+                      isHighlighted: isHighlighted,
                     );
                   }),
 
-                  GestureDetector(
-                    onTap: () {
-                      if (_finalWinnerIndex != -1 && !_isSpinning) {
-                        setState(() => _isCardRevealed = !_isCardRevealed);
-                        HapticFeedback.mediumImpact();
-                      }
-                    },
-                    child: _isCardRevealed 
-                      ? _buildTaskCard(widget.players[_finalWinnerIndex].name)
-                      : _buildNeonMysteryCard(),
+                  Center(
+                    child: _selectionComplete
+                        ? _buildTaskCard(widget.players[_finalWinnerIndex!].name)
+                        : _buildNeonMysteryCard(),
                   ),
                 ],
-              ),
-            ),
+              );
+            },
           ),
 
-          Positioned(
-            bottom: 60,
-            left: 0,
-            right: 0,
-            child: Center(
-              child: _buildNeonStartButton(),
+          if (!_isSelecting && !_selectionComplete)
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 60),
+                child: _buildNeonStartButton(),
+              ),
             ),
-          ),
         ],
       ),
     );
   }
 
   Widget _buildNeonMysteryCard() {
-    return AnimatedBuilder(
-      animation: _breathingController,
-      builder: (context, child) {
-        return Transform.translate(
-          offset: Offset(0, _breathingController.value * -10),
-          child: Container(
-            width: 140,
-            height: 200,
-            decoration: BoxDecoration(
-              color: const Color(0xFF1A0F2E),
-              borderRadius: BorderRadius.circular(15),
-              border: Border.all(color: const Color(0xFFE040FB), width: 3),
-              boxShadow: [
-                BoxShadow(
-                  color: const Color(0xFFE040FB).withOpacity(0.6),
-                  blurRadius: 20,
-                  spreadRadius: 5,
-                ),
-              ],
-            ),
-            child: Center(
-              child: ShaderMask(
-                shaderCallback: (bounds) => const LinearGradient(
-                  colors: [Color(0xFFE040FB), Color(0xFF00E5FF)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ).createShader(bounds),
-                child: const Text(
-                  "?",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 85,
-                    fontWeight: FontWeight.w200,
-                  ),
-                ),
-              ),
+    return Container(
+      width: 95, 
+      height: 145, 
+      decoration: BoxDecoration(
+        color: const Color(0xFF140B1F),
+        borderRadius: BorderRadius.circular(15),
+        border: Border.all(color: cardNeonColor.withValues(alpha: 0.6), width: 2),
+        boxShadow: [
+          BoxShadow(color: cardNeonColor.withValues(alpha: 0.3), blurRadius: 20, spreadRadius: 2),
+        ],
+      ),
+      child: Center(
+        child: ShaderMask(
+          shaderCallback: (bounds) => const LinearGradient(
+            colors: [cardNeonAccent, cardNeonColor],
+          ).createShader(bounds),
+          child: const Text(
+            "?",
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 90, 
+              fontWeight: FontWeight.bold,
             ),
           ),
-        );
-      },
+        ),
+      ),
     );
   }
 
   Widget _buildTaskCard(String playerName) {
-    return Container(
-      width: 140,
-      height: 200,
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(15),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFFE040FB).withOpacity(0.5),
-            blurRadius: 20,
-            spreadRadius: 2,
-          ),
-        ],
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            playerName.toUpperCase(),
-            style: const TextStyle(color: Colors.black, fontSize: 16, fontWeight: FontWeight.bold),
-          ),
-          Divider(color: Colors.black26),
-          Expanded(
-            child: Center(
+    return FlipCard(
+      front: _buildNeonMysteryCard(),
+      back: Container(
+        width: 150, 
+        height: 220, 
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12), 
+        decoration: BoxDecoration(
+          color: const Color(0xFF140B1F),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: cardNeonColor.withValues(alpha: 0.8), width: 3),
+          boxShadow: [BoxShadow(color: cardNeonColor.withValues(alpha: 0.4), blurRadius: 25)],
+        ),
+        child: Column(
+          children: [
+            Text(
+              playerName, 
+              style: const TextStyle(color: cardNeonAccent, fontSize: 18, fontWeight: FontWeight.bold)
+            ),
+            const Divider(color: Colors.white10, height: 20),
+            
+            Expanded(
               child: SingleChildScrollView(
-                child: Text(
-                  _currentTask,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(color: Colors.black87, fontSize: 13),
+                physics: const BouncingScrollPhysics(), 
+                child: Center(
+                  child: Text(
+                    _currentTask?.text ?? "Görev Bulunamadı!", 
+                    textAlign: TextAlign.center, 
+                    style: const TextStyle(color: Colors.white, fontSize: 13, height: 1.4),
+                  ),
                 ),
               ),
             ),
-          ),
-        ],
+            
+            const SizedBox(height: 10),
+
+            GestureDetector(
+              onTap: () => setState(() => _selectionComplete = false),
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(vertical: 10),
+                decoration: BoxDecoration(
+                  color: cardNeonColor.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: cardNeonColor, width: 1.5),
+                  boxShadow: [
+                    BoxShadow(color: cardNeonColor.withValues(alpha: 0.3), blurRadius: 8),
+                  ],
+                ),
+                child: const Center(
+                  child: Text(
+                    "YENİ TUR",
+                    style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildNeonStartButton() {
-    return InkWell(
-      onTap: _isSpinning ? null : _startLuckySelection,
+    return GestureDetector(
+      onTap: _startSelection,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
         decoration: BoxDecoration(
-          color: const Color(0xFF1A0F2E),
+          color: const Color(0xFF1A0B2E),
           borderRadius: BorderRadius.circular(30),
-          border: Border.all(color: const Color(0xFFE040FB), width: 2),
+          border: Border.all(color: cardNeonColor, width: 2),
           boxShadow: [
-            BoxShadow(
-              color: const Color(0xFFE040FB).withOpacity(0.5),
-              blurRadius: 15,
-              spreadRadius: 2,
-            ),
+            BoxShadow(color: cardNeonColor.withValues(alpha: 0.5), blurRadius: 15, spreadRadius: 1),
           ],
         ),
-        child: Text(
-          _isSpinning ? "SEÇİLİYOR..." : "ŞANSLI KİŞİYİ SEÇ",
-          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        child: const Text(
+          "ŞANSLI KİŞİYİ SEÇ",
+          style: TextStyle(color: cardNeonColor, fontWeight: FontWeight.bold, letterSpacing: 1.2, fontSize: 18),
         ),
       ),
     );
   }
 
-  void _showResetDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: const Color(0xFF1A0F2E),
-        title: const Text("Oyunu Sıfırla", style: TextStyle(color: Colors.white)),
-        content: const Text("Mevcut oyunu bitirip başa dönmek istiyor musunuz?", style: TextStyle(color: Colors.white70)),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text("İPTAL")),
-          TextButton(
-            onPressed: () {
-              context.read<SetupProvider>().resetGame();
-              Navigator.of(context).popUntil((route) => route.isFirst);
-            },
-            child: const Text("SIFIRLA", style: TextStyle(color: Color(0xFFE040FB))),
+  Widget _buildPlayerSlot({required double angle, required double radius, required Offset center, required Player player, required bool isHighlighted}) {
+    final x = center.dx + (radius * 0.85) * cos(angle) - 45; 
+    final y = center.dy + (radius * 0.85) * sin(angle) - 55;
+
+    return Positioned(
+      left: x,
+      top: y,
+      child: Column(
+        children: [
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 150),
+            padding: const EdgeInsets.all(3),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(color: isHighlighted ? avatarNeonColor : Colors.white10, width: 2.5),
+              boxShadow: isHighlighted ? [
+                BoxShadow(color: avatarNeonShadow.withValues(alpha: 0.9), blurRadius: 30, spreadRadius: 5),
+                BoxShadow(color: avatarNeonColor.withValues(alpha: 0.5), blurRadius: 15, spreadRadius: 2),
+              ] : [],
+            ),
+            child: CircleAvatar(
+              radius: 42,
+              backgroundColor: const Color(0xFF140B1F),
+              backgroundImage: AssetImage(player.avatarPath), 
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            player.name.toUpperCase(), 
+            style: TextStyle(
+              color: isHighlighted ? Colors.white : Colors.white60, 
+              fontSize: 10, 
+              fontWeight: isHighlighted ? FontWeight.bold : FontWeight.normal
+            )
           ),
         ],
       ),
     );
   }
+
+  Widget _buildRouletteBackground(Offset center, double radius) {
+    return Container(
+      width: radius * 2.2, height: radius * 2.2,
+      decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: Colors.white.withValues(alpha: 0.1))),
+      child: CustomPaint(painter: RouletteLinesPainter(numberOfPlayers: widget.players.length)),
+    );
+  }
+}
+
+class RouletteLinesPainter extends CustomPainter {
+  final int numberOfPlayers;
+  RouletteLinesPainter({required this.numberOfPlayers});
+  
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()..color = Colors.white.withValues(alpha: 0.01)..style = PaintingStyle.stroke..strokeWidth = 1;
+    final center = Offset(size.width / 2, size.height / 2);
+    final radius = size.width / 2;
+    for (int i = 0; i < numberOfPlayers; i++) {
+      final angle = (2 * pi / numberOfPlayers) * i;
+      canvas.drawLine(
+        center + Offset(cos(angle) * radius * 0.7, sin(angle) * radius * 0.7), 
+        center + Offset(cos(angle) * radius, size.width / 2), 
+        paint
+      );
+    }
+  }
+
+  @override bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

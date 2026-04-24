@@ -9,12 +9,14 @@ avatar seçme
 
 
 
+oyunda şuan görevler levelları şu şekilde dağıtılıyor:
+Bu sayaca göre bir "Seviye Filtresi" yazmalıyız. Seviye Atlama Kuralları: şöyle olsun 
+ilk 20 raount level1- 20 rountan sonraki ilk 18 rount level2- 38 rounttan sonra level 3
+
+
+sonrasında yeni görevler eklenince bu kuralı değiştir.
 
 
 
 
-oyun sürekli aynı kişiyi seçiyor,oyuncu seçme işlemi rastgele olsun
-gölge oyuncular üzerinde rastgele ilerlesin her seferinde,
-sıralı düzenli şekilde ilerlemesin
-aynı oyuncu art arda seçilemesin.
 

@@ -44,7 +44,7 @@ class _DrinkRainState extends State<DrinkRain> with SingleTickerProviderStateMix
       speed: _random.nextDouble() * 0.003 + 0.002, // Yavaşça süzülme hızı
       size: _random.nextDouble() * 20 + 15,
       icon: _icons[_random.nextInt(_icons.length)],
-      color: Colors.white.withOpacity(_random.nextDouble() * 0.15 + 0.05), // Hafif saydam
+      color: Colors.white.withValues(alpha: _random.nextDouble() * 0.15 + 0.05), // Hafif saydam
     );
   }
 

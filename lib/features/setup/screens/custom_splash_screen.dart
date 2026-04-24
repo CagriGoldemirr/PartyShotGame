@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../game/widgets/drink_rain.dart';
-import 'start_screen.dart';
+import '../screens/start_screen.dart';
 import '../../game/screens/widgets/partyshot_logo.dart';
 import 'info_screen.dart';
 
@@ -41,7 +41,7 @@ class _CustomSplashScreenState extends State<CustomSplashScreen> {
                 
                 const SizedBox(height: 30),
                 CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.blueAccent.withOpacity(0.8)),
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.blueAccent.withValues(alpha: 0.8)),
                 ),
               ],
             ),

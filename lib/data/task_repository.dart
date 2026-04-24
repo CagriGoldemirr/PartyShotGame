@@ -35,7 +35,7 @@ class TaskRepository {
         type: TaskType.single,
         level: 1),
     TaskItem(
-        text: "Solundaki oyuncuyla 1 dakika boyunca sadece fısıldayarak konuş. Kuralı bozarsan 1 shot at.",
+        text: "Solundaki oyuncuya bir filmi  sessiz sinema şeklinde anlatmaya çalışFilme diğer grup üyeleri karar versin.2dk boyunca anlatamazsan 1 shot at.",
         type: TaskType.single,
         level: 1),
     TaskItem(
@@ -43,7 +43,7 @@ class TaskRepository {
         type: TaskType.single,
         level: 1),
     TaskItem(
-        text: "Burnunla masaya vurarak bir şarkı ritmi tut, kimse bilemezse 1 shot at.",
+        text: "Ellerinle masaya vurarak bir şarkı ritmi tut, kimse bilemezse 1 shot at.",
         type: TaskType.single,
         level: 1),
     TaskItem(
@@ -70,7 +70,7 @@ class TaskRepository {
         text: "Sağındaki kişi senin ses tonunu taklit etsin. Sen de onunkiyle konuş. Gülersen 1 shot at.",
         type: TaskType.single,
         level: 1),
-    TaskItem(
+    TaskItem( 
         text: "Sana bir harf verilecek. 10 saniyede o harfle başlayan 3 ülke söyle. Yapamazsan 1 shot at.",
         type: TaskType.single,
         level: 1),
@@ -84,15 +84,15 @@ class TaskRepository {
         type: TaskType.single,
         level: 1),
     TaskItem(
-        text: "15 saniye plank yap. Yapamazsan 1 shot iç.",
+        text: "1 dakika plank yap. Yapamazsan 1 shot iç.",
         type: TaskType.single,
         level: 1),
     TaskItem(
-        text: "25 squat yap. Tam yapmazsan 1 shot iç.",
+        text: "30 squat yap. Tam yapmazsan 1 shot iç.",
         type: TaskType.single,
         level: 1),
     TaskItem(
-        text: "10 saniye boyunca hiç göz kırpma. Kırparsan 1 shot iç.",
+        text: "15 saniye boyunca hiç göz kırpma. Kırparsan 1 shot iç.",
         type: TaskType.single,
         level: 1),
 
@@ -120,7 +120,7 @@ class TaskRepository {
         type: TaskType.single,
         level: 2),
     TaskItem(
-        text: "Hiçbir sebep yokken, şanssızlık eseri... Direkt 2 shot at!",
+        text: "Hiçbir sebep yokken, tühhh... Direkt 2 shot at!",
         type: TaskType.single,
         level: 2),
     TaskItem(
@@ -136,11 +136,11 @@ class TaskRepository {
         type: TaskType.single,
         level: 2),
     TaskItem(
-        text: "Son 24 saat içinde yaptığın en mantıksız/saçma şeyi itiraf et. Anlatmazsan 2 shot at.",
+        text: "Son 1 hafta içinde yaptığın en mantıksız/saçma şeyi itiraf et. Anlatmazsan 2 shot at.",
         type: TaskType.single,
         level: 2),
     TaskItem(
-        text: "Gruptan biriyle göz kırpma yarışması yap. İlk gözünü kırpan 2 shot atar.",
+        text: "Gruptan seçtiğin biriyle göz kırpma yarışması yap. İlk gözünü kırpan 2 shot atar.",
         type: TaskType.single,
         level: 2),
     TaskItem(
@@ -173,7 +173,7 @@ class TaskRepository {
         type: TaskType.single,
         level: 2),
     TaskItem(
-        text: "Herkes parmağıyla birini göstersin. En çok oy alan 2 shot içer.",
+        text: "Herkes parmağıyla grubun ucubesini göstersin. En çok oy alan 2 shot içer.",
         type: TaskType.group,
         level: 2),
 

@@ -45,7 +45,7 @@ class PartyShotLogo extends StatelessWidget {
               letterSpacing: 4,
               height: 1.1, // İki kelime arası boşluğu sıkılaştırır
               shadows: [
-                Shadow(color: Colors.purpleAccent.withOpacity(0.6), blurRadius: 20),
+                Shadow(color: Colors.purpleAccent.withValues(alpha: 0.6), blurRadius: 20),
               ],
             ),
           ),
