@@ -7,9 +7,14 @@ sesleri sil kendin stylophonedna ses ekle telif  vs işleri yüüznden
 avatar seçme
 
 
-animasyon ekle.
 
 
 
-oyuncu eklme ekranı ile play ekrnaı arasına ek bir ekran daha koy oyunu anlat
+
+
+
+oyun sürekli aynı kişiyi seçiyor,oyuncu seçme işlemi rastgele olsun
+gölge oyuncular üzerinde rastgele ilerlesin her seferinde,
+sıralı düzenli şekilde ilerlemesin
+aynı oyuncu art arda seçilemesin.
 
