@@ -19,32 +19,34 @@ class GameScreen extends StatefulWidget {
 }
 
 class _GameScreenState extends State<GameScreen> {
+  final GlobalKey<FlipCardState> _cardKey = GlobalKey<FlipCardState>();
+
   int? _highlightedIndex;
   bool _isSelecting = false;
   bool _selectionComplete = false;
   int? _finalWinnerIndex;
   int? _lastWinnerIndex;
 
-  // Oyun Mantığı Değişkenleri
   int _currentTurn = 1; 
   TaskItem? _currentTask;
 
-  // Renk Paleti (Neon Tema)
   static const Color avatarNeonColor = Color(0xFF673AB7); 
   static const Color avatarNeonShadow = Color(0xFF311B92); 
   static const Color cardNeonColor = Color(0xFFE040FB); 
   static const Color cardNeonAccent = Color(0xFFF48FB1); 
 
-  // Tur Sayısına Göre Seviye Belirleme (1-20: S1, 21-38: S2, 39+: S3)
   int _calculateCurrentLevel() {
     if (_currentTurn <= 20) return 1;
     if (_currentTurn <= 38) return 2;
     return 3;
   }
 
-  // Kaotik Seçim ve Görev Çekme Mantığı
   Future<void> _startSelection() async {
     if (_isSelecting) return;
+
+    if (_cardKey.currentState != null && !_cardKey.currentState!.isFront) {
+      _cardKey.currentState!.toggleCard();
+    }
 
     setState(() {
       _isSelecting = true;
@@ -56,7 +58,6 @@ class _GameScreenState extends State<GameScreen> {
     int totalSteps = 25 + Random().nextInt(15);
     int currentStep = 0;
     
-    // Ardışık Seçim Engeli
     int newWinner;
     do {
       newWinner = Random().nextInt(widget.players.length);
@@ -64,7 +65,6 @@ class _GameScreenState extends State<GameScreen> {
     
     _lastWinnerIndex = newWinner;
 
-    // Rulet Animasyonu: Oyuncular üzerinde kaotik sıçrama
     while (currentStep < totalSteps) {
       await Future.delayed(Duration(milliseconds: 50 + (currentStep * 10)));
       
@@ -80,21 +80,124 @@ class _GameScreenState extends State<GameScreen> {
       currentStep++;
     }
 
-    // Seçim Bitti -> Verileri Güncelle
     setState(() {
       _highlightedIndex = newWinner;
       _finalWinnerIndex = newWinner;
       _isSelecting = false;
       _selectionComplete = true;
       
-      // Seviyeyi hesapla ve havuzdan uygun görevi çek
       final int level = _calculateCurrentLevel();
       _currentTask = TaskRepository.getRandomTaskByLevel(level);
       
-      _currentTurn++; // Bir sonraki el için turu artır
+      _currentTurn++; 
     });
 
     HapticFeedback.heavyImpact();
+    _showWinnerPopup(widget.players[newWinner]);
+  }
+
+  void _showWinnerPopup(Player winner) {
+    showGeneralDialog(
+      context: context,
+      barrierDismissible: false,
+      barrierColor: Colors.black.withOpacity(0.85),
+      transitionDuration: const Duration(milliseconds: 400),
+      pageBuilder: (context, anim1, anim2) {
+        return Center(
+          child: Material(
+            color: Colors.transparent,
+            child: Container(
+              margin: const EdgeInsets.symmetric(horizontal: 40),
+              padding: const EdgeInsets.all(25),
+              decoration: BoxDecoration(
+                color: const Color(0xFF140B1F),
+                borderRadius: BorderRadius.circular(30),
+                border: Border.all(color: cardNeonColor, width: 2),
+                boxShadow: [
+                  BoxShadow(color: cardNeonColor.withOpacity(0.5), blurRadius: 40, spreadRadius: 5),
+                ],
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Text(
+                    "ŞANSLI KİŞİ!",
+                    style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.w900, letterSpacing: 2),
+                  ),
+                  const SizedBox(height: 20),
+                  
+                  Container(
+                    padding: const EdgeInsets.all(3),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(color: cardNeonAccent, width: 2),
+                      boxShadow: [BoxShadow(color: cardNeonAccent.withOpacity(0.4), blurRadius: 15)],
+                    ),
+                    child: CircleAvatar(
+                      radius: 50,
+                      backgroundColor: const Color(0xFF140B1F),
+                      backgroundImage: AssetImage(winner.avatarPath),
+                    ),
+                  ),
+                  const SizedBox(height: 15),
+                  
+                  Text(
+                    winner.name.toUpperCase(),
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(color: cardNeonAccent, fontSize: 26, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 30),
+                  
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.pop(context);
+                      Future.delayed(const Duration(milliseconds: 300), () {
+                        if (_cardKey.currentState != null && _cardKey.currentState!.isFront) {
+                          _cardKey.currentState!.toggleCard();
+                        }
+                      });
+                    },
+                    child: Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF1A0B2E), // Ana temanın derin koyu moru
+                        borderRadius: BorderRadius.circular(15),
+                        border: Border.all(color: cardNeonColor, width: 2), // Neon pembe çerçeve
+                        boxShadow: [
+                          BoxShadow(
+                            color: cardNeonColor.withOpacity(0.5), 
+                            blurRadius: 15, 
+                            spreadRadius: 2
+                          ) // Dışa doğru neon parlama
+                        ],
+                      ),
+                      child: const Center(
+                        child: Text(
+                          "GÖREVİ GÖR",
+                          style: TextStyle(
+                            color: cardNeonAccent, // Parlak açık pembe yazı
+                            fontSize: 16, 
+                            fontWeight: FontWeight.bold, 
+                            letterSpacing: 2
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+      transitionBuilder: (context, anim1, anim2, child) {
+        return Transform.scale(
+          scale: Curves.elasticOut.transform(anim1.value),
+          child: child,
+        );
+      },
+    );
   }
 
   @override
@@ -109,12 +212,25 @@ class _GameScreenState extends State<GameScreen> {
             top: 50,
             left: 15,
             child: IconButton(
-              icon: const Icon(
-                Icons.arrow_back_ios_new_rounded, 
-                color: Colors.white30, 
-                size: 24
-              ),
+              icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white30, size: 24),
               onPressed: () => Navigator.pop(context),
+            ),
+          ),
+
+          Positioned(
+            top: 55,
+            right: 20,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+              decoration: BoxDecoration(
+                color: cardNeonColor.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: cardNeonColor.withOpacity(0.3)),
+              ),
+              child: Text(
+                "Tur: $_currentTurn | S: ${_calculateCurrentLevel()}",
+                style: const TextStyle(color: Colors.white70, fontSize: 11, fontWeight: FontWeight.bold),
+              ),
             ),
           ),
 
@@ -129,22 +245,19 @@ class _GameScreenState extends State<GameScreen> {
                   _buildRouletteBackground(center, rouletteRadius),
 
                   ...List.generate(widget.players.length, (index) {
-                    final angle = (2 * pi / widget.players.length) * index;
+                    final angle = (2 * pi / widget.players.length) * index - (pi / 2);
                     final isHighlighted = _highlightedIndex == index;
 
                     return _buildPlayerSlot(
                       angle: angle,
-                      radius: rouletteRadius,
-                      center: center,
+                      radius: rouletteRadius * 0.85,
                       player: widget.players[index],
                       isHighlighted: isHighlighted,
                     );
                   }),
 
                   Center(
-                    child: _selectionComplete
-                        ? _buildTaskCard(widget.players[_finalWinnerIndex!].name)
-                        : _buildNeonMysteryCard(),
+                    child: _buildTaskCard(),
                   ),
                 ],
               );
@@ -155,7 +268,7 @@ class _GameScreenState extends State<GameScreen> {
             Align(
               alignment: Alignment.bottomCenter,
               child: Padding(
-                padding: const EdgeInsets.only(bottom: 60),
+                padding: const EdgeInsets.only(bottom: 50),
                 child: _buildNeonStartButton(),
               ),
             ),
@@ -164,16 +277,17 @@ class _GameScreenState extends State<GameScreen> {
     );
   }
 
+  // Hafif Büyütülmüş Gizemli Kart (130x200)
   Widget _buildNeonMysteryCard() {
     return Container(
-      width: 95, 
-      height: 145, 
+      width: 150, 
+      height: 180, 
       decoration: BoxDecoration(
         color: const Color(0xFF140B1F),
-        borderRadius: BorderRadius.circular(15),
-        border: Border.all(color: cardNeonColor.withValues(alpha: 0.6), width: 2),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: cardNeonColor.withOpacity(0.5), width: 1.5),
         boxShadow: [
-          BoxShadow(color: cardNeonColor.withValues(alpha: 0.3), blurRadius: 20, spreadRadius: 2),
+          BoxShadow(color: cardNeonColor.withOpacity(0.2), blurRadius: 15),
         ],
       ),
       child: Center(
@@ -185,7 +299,7 @@ class _GameScreenState extends State<GameScreen> {
             "?",
             style: TextStyle(
               color: Colors.white,
-              fontSize: 90, 
+              fontSize: 85, 
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -194,59 +308,59 @@ class _GameScreenState extends State<GameScreen> {
     );
   }
 
-  Widget _buildTaskCard(String playerName) {
+  // Hafif Büyütülmüş Görev Kartı (130x200)
+  Widget _buildTaskCard() {
     return FlipCard(
+      key: _cardKey,
+      flipOnTouch: false,
       front: _buildNeonMysteryCard(),
       back: Container(
-        width: 150, 
-        height: 220, 
-        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12), 
+        width: 130, 
+        height: 200, 
+        padding: const EdgeInsets.all(14), 
         decoration: BoxDecoration(
           color: const Color(0xFF140B1F),
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: cardNeonColor.withValues(alpha: 0.8), width: 3),
-          boxShadow: [BoxShadow(color: cardNeonColor.withValues(alpha: 0.4), blurRadius: 25)],
+          borderRadius: BorderRadius.circular(15),
+          border: Border.all(color: cardNeonColor.withOpacity(0.7), width: 2),
+          boxShadow: [BoxShadow(color: cardNeonColor.withOpacity(0.3), blurRadius: 20)],
         ),
         child: Column(
           children: [
-            Text(
-              playerName, 
-              style: const TextStyle(color: cardNeonAccent, fontSize: 18, fontWeight: FontWeight.bold)
+            const Text(
+              "GÖREV", 
+              style: TextStyle(color: cardNeonAccent, fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 1.5)
             ),
-            const Divider(color: Colors.white10, height: 20),
+            const Divider(color: Colors.white10, height: 14),
             
             Expanded(
               child: SingleChildScrollView(
                 physics: const BouncingScrollPhysics(), 
                 child: Center(
                   child: Text(
-                    _currentTask?.text ?? "Görev Bulunamadı!", 
+                    _currentTask?.text ?? "...", 
                     textAlign: TextAlign.center, 
-                    style: const TextStyle(color: Colors.white, fontSize: 13, height: 1.4),
+                    style: const TextStyle(color: Colors.white, fontSize: 12, height: 1.3),
                   ),
                 ),
               ),
             ),
             
-            const SizedBox(height: 10),
+            const SizedBox(height: 8),
 
             GestureDetector(
               onTap: () => setState(() => _selectionComplete = false),
               child: Container(
                 width: double.infinity,
-                padding: const EdgeInsets.symmetric(vertical: 10),
+                padding: const EdgeInsets.symmetric(vertical: 8),
                 decoration: BoxDecoration(
-                  color: cardNeonColor.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: cardNeonColor, width: 1.5),
-                  boxShadow: [
-                    BoxShadow(color: cardNeonColor.withValues(alpha: 0.3), blurRadius: 8),
-                  ],
+                  color: cardNeonColor.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: cardNeonColor.withOpacity(0.5)),
                 ),
                 child: const Center(
                   child: Text(
-                    "YENİ TUR",
-                    style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
+                    "OK",
+                    style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
                   ),
                 ),
               ),
@@ -261,50 +375,49 @@ class _GameScreenState extends State<GameScreen> {
     return GestureDetector(
       onTap: _startSelection,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+        padding: const EdgeInsets.symmetric(horizontal: 45, vertical: 14),
         decoration: BoxDecoration(
           color: const Color(0xFF1A0B2E),
           borderRadius: BorderRadius.circular(30),
           border: Border.all(color: cardNeonColor, width: 2),
           boxShadow: [
-            BoxShadow(color: cardNeonColor.withValues(alpha: 0.5), blurRadius: 15, spreadRadius: 1),
+            BoxShadow(color: cardNeonColor.withOpacity(0.5), blurRadius: 15),
           ],
         ),
         child: const Text(
-          "ŞANSLI KİŞİYİ SEÇ",
-          style: TextStyle(color: cardNeonColor, fontWeight: FontWeight.bold, letterSpacing: 1.2, fontSize: 18),
+          "ŞANSINI DENEMEK İÇİN TIKLA",
+          style: TextStyle(color: cardNeonColor, fontWeight: FontWeight.bold, letterSpacing: 2, fontSize: 18),
         ),
       ),
     );
   }
 
-  Widget _buildPlayerSlot({required double angle, required double radius, required Offset center, required Player player, required bool isHighlighted}) {
-    final x = center.dx + (radius * 0.85) * cos(angle) - 45; 
-    final y = center.dy + (radius * 0.85) * sin(angle) - 55;
+  Widget _buildPlayerSlot({required double angle, required double radius, required Player player, required bool isHighlighted}) {
+    final x = radius * cos(angle); 
+    final y = radius * sin(angle);
 
-    return Positioned(
-      left: x,
-      top: y,
+    return Transform.translate(
+      offset: Offset(x, y),
       child: Column(
+        mainAxisSize: MainAxisSize.min, 
         children: [
           AnimatedContainer(
             duration: const Duration(milliseconds: 150),
             padding: const EdgeInsets.all(3),
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              border: Border.all(color: isHighlighted ? avatarNeonColor : Colors.white10, width: 2.5),
+              border: Border.all(color: isHighlighted ? avatarNeonColor : Colors.white10, width: 2),
               boxShadow: isHighlighted ? [
-                BoxShadow(color: avatarNeonShadow.withValues(alpha: 0.9), blurRadius: 30, spreadRadius: 5),
-                BoxShadow(color: avatarNeonColor.withValues(alpha: 0.5), blurRadius: 15, spreadRadius: 2),
+                BoxShadow(color: avatarNeonShadow.withOpacity(0.8), blurRadius: 25, spreadRadius: 3),
               ] : [],
             ),
             child: CircleAvatar(
-              radius: 42,
+              radius: 40,
               backgroundColor: const Color(0xFF140B1F),
               backgroundImage: AssetImage(player.avatarPath), 
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 6),
           Text(
             player.name.toUpperCase(), 
             style: TextStyle(
@@ -320,8 +433,8 @@ class _GameScreenState extends State<GameScreen> {
 
   Widget _buildRouletteBackground(Offset center, double radius) {
     return Container(
-      width: radius * 2.2, height: radius * 2.2,
-      decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: Colors.white.withValues(alpha: 0.1))),
+      width: radius * 2.1, height: radius * 2.1,
+      decoration: const BoxDecoration(shape: BoxShape.circle),
       child: CustomPaint(painter: RouletteLinesPainter(numberOfPlayers: widget.players.length)),
     );
   }
@@ -333,14 +446,14 @@ class RouletteLinesPainter extends CustomPainter {
   
   @override
   void paint(Canvas canvas, Size size) {
-    final paint = Paint()..color = Colors.white.withValues(alpha: 0.01)..style = PaintingStyle.stroke..strokeWidth = 1;
+    final paint = Paint()..color = Colors.white.withOpacity(0.015)..style = PaintingStyle.stroke..strokeWidth = 1;
     final center = Offset(size.width / 2, size.height / 2);
     final radius = size.width / 2;
     for (int i = 0; i < numberOfPlayers; i++) {
-      final angle = (2 * pi / numberOfPlayers) * i;
+      final angle = (2 * pi / numberOfPlayers) * i - (pi / 2);
       canvas.drawLine(
-        center + Offset(cos(angle) * radius * 0.7, sin(angle) * radius * 0.7), 
-        center + Offset(cos(angle) * radius, size.width / 2), 
+        center + Offset(cos(angle) * radius * 0.75, sin(angle) * radius * 0.75), 
+        center + Offset(cos(angle) * radius, sin(angle) * radius), 
         paint
       );
     }
