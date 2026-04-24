@@ -21,8 +21,8 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^5.0.0
+  flutter_launcher_icons: ^0.13.1
   flutter_native_splash: ^2.4.7
-  shared_preferences: ^2.2.2
 
 flutter:
   uses-material-design: true
@@ -30,13 +30,21 @@ flutter:
     - assets/images/card_back.jpg
     - assets/sounds/
     - assets/avatars/
-     # - assets/images/  # Bu satır images klasöründeki tüm avatarlara izin verir
+    - assets/logo/ # Logonun uygulamada sorunsuz görünmesi için eklendi
 
+# --- İKON AYARLARI ---
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/logo/icon.png"
+
+# --- AÇILIŞ EKRANI (SPLASH) AYARLARI ---
 flutter_native_splash:
   color: "#0F0C20"
+  image: "assets/logo/empty.png" # Oluşturduğumuz dümdüz mor kare
   android: true
   ios: true
   fullscreen: true
   android_12:
     color: "#0F0C20"
-    image: "assets/images/transparent.png"
+    image: "assets/logo/empty.png"

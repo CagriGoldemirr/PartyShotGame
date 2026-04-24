@@ -8,10 +8,9 @@ class SetupProvider extends ChangeNotifier {
   List<Player> get players => _players;
 
   SetupProvider() {
-    loadPlayers(); // Uygulama başladığında oyuncuları yükle
+    loadPlayers();
   }
 
-  // Oyuncuları Kaydet (Local Storage)
   Future<void> savePlayers() async {
     final prefs = await SharedPreferences.getInstance();
     final String encodedData = json.encode(
@@ -24,7 +23,6 @@ class SetupProvider extends ChangeNotifier {
     await prefs.setString('saved_players', encodedData);
   }
 
-  // Oyuncuları Yükle
   Future<void> loadPlayers() async {
     final prefs = await SharedPreferences.getInstance();
     final String? savedData = prefs.getString('saved_players');
@@ -52,14 +50,14 @@ class SetupProvider extends ChangeNotifier {
       avatarPath: avatarPath,
     ));
     
-    savePlayers(); // Listeyi güncelle ve kaydet
+    savePlayers(); 
     notifyListeners();
     return null;
   }
 
   void removePlayer(String id) {
     _players.removeWhere((p) => p.id == id);
-    savePlayers(); // Güncel listeyi kaydet
+    savePlayers();
     notifyListeners();
   }
 
