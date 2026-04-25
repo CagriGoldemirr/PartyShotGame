@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../game/widgets/drink_rain.dart';
-import '../screens/start_screen.dart';
+
 import '../../game/screens/widgets/partyshot_logo.dart';
 import 'info_screen.dart';
 

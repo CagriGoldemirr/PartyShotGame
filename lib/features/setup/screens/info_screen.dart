@@ -32,15 +32,15 @@ class InfoScreen extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(25),
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.05),
+                      color: Colors.white.withValues(alpha: 0.05),
                       borderRadius: BorderRadius.circular(30),
                       border: Border.all(
-                        color: const Color(0xFFE040FB).withOpacity(0.3), 
+                        color: const Color(0xFFE040FB).withValues(alpha: 0.3), 
                         width: 1.5
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: const Color(0xFFE040FB).withOpacity(0.1),
+                          color: const Color(0xFFE040FB).withValues(alpha: 0.1),
                           blurRadius: 20,
                           spreadRadius: 5,
                         ),
@@ -99,7 +99,7 @@ class InfoScreen extends StatelessWidget {
                           borderRadius: BorderRadius.circular(20),
                           boxShadow: [
                             BoxShadow(
-                              color: const Color(0xFFE040FB).withOpacity(0.4),
+                              color: const Color(0xFFE040FB).withValues(alpha: 0.4),
                               blurRadius: 15,
                               offset: const Offset(0, 5),
                             ),

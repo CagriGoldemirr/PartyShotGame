@@ -38,7 +38,7 @@ class _MagicDustState extends State<MagicDust> with SingleTickerProviderStateMix
       speed: _random.nextDouble() * 0.005 + 0.002, // Düşüş hızı
       size: _random.nextDouble() * 15 + 10, // İkon boyutu
       icon: _shotIcons[_random.nextInt(_shotIcons.length)], // Rastgele ikon seçimi
-      color: Colors.white.withOpacity(_random.nextDouble() * 0.3 + 0.1), // Hafif saydam beyaz
+      color: Colors.white.withValues(alpha: _random.nextDouble() * 0.3 + 0.1), // Hafif saydam beyaz
     );
   }
 

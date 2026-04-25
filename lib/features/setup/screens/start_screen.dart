@@ -91,7 +91,7 @@ class _StartScreenState extends State<StartScreen> {
                   child: Container(
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.05),
+                      color: Colors.white.withValues(alpha: 0.05),
                       borderRadius: BorderRadius.circular(25),
                       border: Border.all(color: Colors.white10),
                     ),
@@ -137,7 +137,7 @@ class _StartScreenState extends State<StartScreen> {
                             hintText: "Oyuncu adını gir...",
                             hintStyle: const TextStyle(color: Colors.white30),
                             filled: true,
-                            fillColor: Colors.black.withOpacity(0.2),
+                            fillColor: Colors.black.withValues(alpha: 0.2),
                             border: OutlineInputBorder(borderRadius: BorderRadius.circular(15), borderSide: BorderSide.none),
                             suffixIcon: IconButton(
                               icon: const Icon(Icons.add_circle, color: Colors.cyanAccent, size: 30), 
@@ -162,9 +162,9 @@ class _StartScreenState extends State<StartScreen> {
                         margin: const EdgeInsets.only(bottom: 12),
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.05), 
+                          color: Colors.white.withValues(alpha: 0.05), 
                           borderRadius: BorderRadius.circular(15),
-                          border: Border.all(color: Colors.white.withOpacity(0.05))
+                          border: Border.all(color: Colors.white.withValues(alpha: 0.05))
                         ),
                         child: Row(
                           children: [
@@ -213,11 +213,11 @@ class _StartScreenState extends State<StartScreen> {
                         );
                       } : null,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.purpleAccent.withOpacity(0.8), 
+                        backgroundColor: Colors.purpleAccent.withValues(alpha: 0.8), 
                         disabledBackgroundColor: Colors.white10,
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                         elevation: 10,
-                        shadowColor: Colors.purpleAccent.withOpacity(0.3),
+                        shadowColor: Colors.purpleAccent.withValues(alpha: 0.3),
                       ),
                       child: Text(
                         "HAZIRIZ!", 

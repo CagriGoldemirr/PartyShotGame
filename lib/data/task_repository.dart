@@ -6,10 +6,9 @@ class TaskRepository {
     // ==========================================
     // SEVİYE 1: ISINMA (Eğlence, Merak ve Hafif İtiraflar)
     // ==========================================
-    TaskItem(
-        text: "Daha önce kimsenin bilmediği garip bir yeteneğini göster. Yapamazsan 1 shot at.",
-        type: TaskType.single,
-        level: 1),
+    
+    
+
     TaskItem(
         text: "Küçüklük ünlü aşkını (crush) itiraf et. Çekinirsen 1 shot at.",
         type: TaskType.single,
@@ -27,7 +26,7 @@ class TaskRepository {
         type: TaskType.single,
         level: 1),
     TaskItem(
-        text: "Sağındaki oyuncunun en belirgin huyunun taklidini yap. Grup beğenmezse 1 shot at.",
+        text: "Sağındaki oyuncunun en belirgin huyunun taklidini yap. Grup beğenmezse 1 shot at,beğenirse o kişi 1 shot atar.",
         type: TaskType.single,
         level: 1),
     TaskItem(
@@ -35,13 +34,10 @@ class TaskRepository {
         type: TaskType.single,
         level: 1),
     TaskItem(
-        text: "Solundaki oyuncuya bir filmi  sessiz sinema şeklinde anlatmaya çalışFilme diğer grup üyeleri karar versin.2dk boyunca anlatamazsan 1 shot at.",
+        text: "Solundaki oyuncuya bir filmi  sessiz sinema şeklinde anlatmaya çalış.2dk boyunca anlatamazsan 1 shot at.",
         type: TaskType.single,
         level: 1),
-    TaskItem(
-        text: "Bir fıkra veya espri anlat, masadan kimse gülmezse 1 shot at.",
-        type: TaskType.single,
-        level: 1),
+    
     TaskItem(
         text: "Ellerinle masaya vurarak bir şarkı ritmi tut, kimse bilemezse 1 shot at.",
         type: TaskType.single,
@@ -63,7 +59,7 @@ class TaskRepository {
         type: TaskType.single,
         level: 1),
     TaskItem(
-        text: "Herkes sana 1 kelime söylesin. 10 saniyede mini hikaye kur. Kuramazsan 1 shot at.",
+        text: "Herkes sana 1 kelime söylesin. Kısa sürede bu kelimelerle mini hikaye kur. Kuramazsan 1 shot at.",
         type: TaskType.single,
         level: 1),
     TaskItem(
@@ -71,7 +67,7 @@ class TaskRepository {
         type: TaskType.single,
         level: 1),
     TaskItem( 
-        text: "Sana bir harf verilecek. 10 saniyede o harfle başlayan 3 ülke söyle. Yapamazsan 1 shot at.",
+        text: "Sana bir harf verilecek diğer oyuncular tarafından. 10 saniyede o harfle başlayan 3 ülke söyle. Yapamazsan 1 shot at.",
         type: TaskType.single,
         level: 1),
     // --- YENİ EKLENEN SEVİYE 1 GÖREVLERİ ---
@@ -80,33 +76,48 @@ class TaskRepository {
         type: TaskType.group,
         level: 1),
     TaskItem(
-        text: "Sağındaki içer.",
+        text: "Sağındaki 1 shot  içer.",
         type: TaskType.single,
+        level: 1),
+    TaskItem(text: "Solundaki oyuncu senin telefonunu alsın ve 1 dakika boyunca istediği uygulamaya (mesajlar hariç) baksın. Kabul etmezsen 2 shot at.",
+         type: TaskType.single, 
         level: 1),
     TaskItem(
         text: "1 dakika plank yap. Yapamazsan 1 shot iç.",
         type: TaskType.single,
         level: 1),
     TaskItem(
-        text: "30 squat yap. Tam yapmazsan 1 shot iç.",
+        text: "30 saniyede 30  squat yap. Tam yapmazsan 1 shot iç.",
         type: TaskType.single,
         level: 1),
     TaskItem(
         text: "15 saniye boyunca hiç göz kırpma. Kırparsan 1 shot iç.",
         type: TaskType.single,
         level: 1),
+    TaskItem(
+        text: "10 saniye içinde alfabeyi Z'den geriye doğru en az 5 harf say. Takılırsan 1 shot at.", 
+        type: TaskType.single, 
+        level: 1),
+        
 
     // ==========================================
     // SEVİYE 2: ORTA ZORLUK (Utanç, Grup Dinamiği ve Hareket)
     // ==========================================
+    TaskItem(text: "PLANK TESTİ: 1 dakika boyunca plank pozisyonunda bekle. Eğer yere düşersen veya süreyi tamamlayamazsan 2 shot at!", type: TaskType.single, level: 2),
     TaskItem(
         text: "Utanç verici bir anını tüm çıplaklığıyla anlat. Çekinirsen 2 shot at.",
         type: TaskType.single,
         level: 2),
+    TaskItem(text: "TEK AYAK ÜSTÜNDE: Gözlerini kapat ve tek ayak üzerinde 45 saniye durmaya çalış. Dengeni kaybedersen 2 shot at!", type: TaskType.single, level: 2),
+    TaskItem(text: "DUVAR OTURUŞU: Sırtını duvara yaslayarak (hayali bir sandalyede oturur gibi) 1 dakika bekle. Titrer ve kalkarsan 2 shot at!", type: TaskType.single, level: 2),
+    TaskItem(text: "ŞINAV MARATONU: Masadaki en güçlü olduğunu düşündüğün kişiyle şınav yarışına gir. Ondan önce pes edersen 2 shot at!", type: TaskType.single, level: 2),    
     TaskItem(
         text: "Kendin hakkında kimsenin bilmediği karanlık bir sır söyle. Söylemezsen 2 shot at.",
         type: TaskType.single,
         level: 2),
+    TaskItem(text: "DENGE TESTİ: Seçtiğin bir oyuncuyla el ele tutuşup tek ayak üzerinde 15 saniye durun. Eğer biriniz dengesini kaybederse ikiniz de 2 shot atın!", type: TaskType.group, level: 2),
+    TaskItem(text: "KÖR YÜRÜYÜŞÜ: Gözlerini bağla ve masadaki birinin tarifine göre odadaki 3 farklı eşyaya dokunmaya çalış. Bir yere çarparsan 2 shot at!", type: TaskType.single, level: 2),
+    TaskItem(text: "SABIR TESTİ: Solundaki oyuncu burnuna veya kulağına bir tüy/kağıt parçasıyla dokunurken 1 dakika boyunca hiç kıpırdamadan dur. Kaşınırsan 3 shot at!", type: TaskType.single, level: 2),
     TaskItem(
         text: "Tüm oyuncular şınav çeksin! En az çeken 1 shot atar.",
         type: TaskType.group,
@@ -115,6 +126,7 @@ class TaskRepository {
         text: "Grup içindeki birinin dedikodusunu herkesle açıkça paylaş. Yapmazsan 2 shot at.",
         type: TaskType.single,
         level: 2),
+    TaskItem(text: "SQUAT REKABETİ: Masadaki bir rakip seç! 1 dakika içinde en çok squat yapan kazanır. Kaybeden 2 shot atar!", type: TaskType.group, level: 2),
     TaskItem(
         text: "Masadan birini seç ve doğurma taklidi yap, seçtiğin kişi de ebe olsun! Oynamazsanız ikiniz de 1'er shot atın.",
         type: TaskType.single,
@@ -131,6 +143,11 @@ class TaskRepository {
         text: "Bardağını kafanın üstünde 10 saniye boyunca dengede tut. Düşürürsen 2 shot at.",
         type: TaskType.single,
         level: 2),
+    
+    TaskItem(
+    text: " Masadaki oyunculardan biri sana rastgele bir nesne versin. Bu nesneyi gerçek bir  partnerinmiş gibi tutarak 60 saniye boyunca eğlenceli bir müzikle dans et .Yapmazsan 2 shot.", 
+    type: TaskType.single, 
+    level: 2),
     TaskItem(
         text: "Masadaki herkes sana rastgele bir kelime versin, bu kelimeleri kullanarak anlamlı bir cümle kur. Kuramazsan 2 shot at.",
         type: TaskType.single,
@@ -147,10 +164,7 @@ class TaskRepository {
         text: "Masadaki herkesin ilk tanıştığınızda sana verdiği izlenimi tek tek itiraf et. Kaçarsan 2 shot at.",
         type: TaskType.single,
         level: 2),
-    TaskItem(
-        text: "30 saniye boyunca herkes sana soru sorsun. Sadece 'evet/hayır' ile cevap verebilirsin. Bozarsan 2 shot at.",
-        type: TaskType.single,
-        level: 2),
+    
     TaskItem(
         text: "Gruptan biri sana bir challenge versin (örneğin 1 ayak üstünde durarak konuş). Başaramazsan 2 shot at.",
         type: TaskType.single,
@@ -176,6 +190,23 @@ class TaskRepository {
         text: "Herkes parmağıyla grubun ucubesini göstersin. En çok oy alan 2 shot içer.",
         type: TaskType.group,
         level: 2),
+    TaskItem(
+        text: "Solundaki oyuncu seni 1 dakika boyunca istediği komik bir şekle soksun. Bu sürede kıpırdarsan veya gülersen 1 shot at.",
+        type: TaskType.single,
+        level: 2),
+      TaskItem(
+        text: "Sağındaki oyuncuyla üstündeki bir kıyafeti (ceket, şapka, gözlük vb.) oyunun sonuna kadar değiştir. Kabul etmezsen 2 shot at.",
+        type: TaskType.single,
+        level: 2),
+      TaskItem(
+        text: "Galerindeki Silinmiş Fotoğraflar klasörüne gir ve en son sildiğin 10 fotoğrafı herkese göster. Göstermezsen 3 shot at",
+        type: TaskType.single,
+        level: 2),
+      TaskItem(
+        text: "Bu grupta en az güvendiğin kişiyi ve nedenini dürüstçe açıkla. Kıvırırsan 3 shot at.",
+        type: TaskType.single,
+        level: 2),
+    
 
     // ==========================================
     // SEVİYE 3: ZORLAYICI (Krizler, Sert İtiraflar ve Cesaret)
@@ -184,6 +215,18 @@ class TaskRepository {
         text: "Son ilişkini tüm detaylarıyla ve tam olarak neden bittiğini anlat. Anlatmazsan 3 shot at.",
         type: TaskType.single,
         level: 3),
+
+    TaskItem(
+    text: " Gözlerini kapat. Masadakilerden biri elini sana uzatsın (kim olduğunu bilmeyeceksin). O eli öp ve kimin eli olduğunu tahmin et. Bilemezsen 3 shot at!", 
+    type: TaskType.single, 
+    level: 3),
+
+    TaskItem(
+    text: "HAVA TAŞITI: Masadan birini seç. O kişi yere yatsın, sen de onun üzerinde 30 saniye boyunca tam nizami şınav pozisyonunda (ona değmeden) bekle. Titrer veya düşersen 3 shot at!", 
+    type: TaskType.single, 
+    level: 3),
+
+
     TaskItem(
         text: "Masada sana borcu olan birinden borcunu hemen şimdi yüksek sesle iste. İsteyemezsen 3 shot at.",
         type: TaskType.single,
@@ -216,10 +259,7 @@ class TaskRepository {
         text: "Sağındaki oyuncunun telefonunu al, galerisinde rastgele bir fotoğraf aç ve hikayesini sor. O anlatmazsa 2 shot, sen seçemezsen 3 shot at.",
         type: TaskType.single,
         level: 3),
-    TaskItem(
-        text: "Bir sandalyeye veya koltuğa çıkıp gruptan uydurma bir sebeple çok dramatik bir şekilde özür dile. Grup ikna olmazsa 3 shot at.",
-        type: TaskType.single,
-        level: 3),
+    
     TaskItem(
         text: "Telefonundaki son 3 WhatsApp/SMS mesajını kimden geldiğiyle birlikte yüksek sesle oku. Okumazsan 3 shot at.",
         type: TaskType.single,
@@ -227,6 +267,14 @@ class TaskRepository {
     TaskItem(
         text: "Herkes kadehini doldursun! Sağındaki oyuncu senin adına bir itirafta bulunsun, eğer doğruysa içkini fondip yap!",
         type: TaskType.group,
+        level: 3),
+    TaskItem(
+        text: "Telefonunun arama motoruna gir ve son aradığın  10 şeyi yüksek sesle oku. Okumazsan 1 shot at.",
+        type: TaskType.single,
+        level: 3), 
+    TaskItem(
+        text: "Masadaki birine, daha önce arkasından söylediğin veya düşündüğün ama yüzüne söyleyemediğin bir şeyi söyle. Cesaret edemezsen 3 shot at",
+        type: TaskType.single, 
         level: 3),
   
 

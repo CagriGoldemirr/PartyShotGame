@@ -20,7 +20,7 @@ class _GameScreenState extends State<GameScreen> {
 
   int? _highlightedIndex;
   bool _isSelecting = false;
-  int? _finalWinnerIndex;
+  
   int? _lastWinnerIndex;
 
   int _currentTurn = 1; 
@@ -71,7 +71,7 @@ class _GameScreenState extends State<GameScreen> {
 
     setState(() {
       _highlightedIndex = newWinner;
-      _finalWinnerIndex = newWinner;
+     
       _isSelecting = false;
 
       if (Random().nextInt(100) < 10) {
@@ -92,7 +92,7 @@ class _GameScreenState extends State<GameScreen> {
     showGeneralDialog(
       context: context,
       barrierDismissible: false,
-      barrierColor: Colors.black.withOpacity(0.85),
+      barrierColor: Colors.black.withValues(alpha: 0.85),
       transitionDuration: const Duration(milliseconds: 400),
       pageBuilder: (context, anim1, anim2) {
         return Center(
@@ -106,7 +106,7 @@ class _GameScreenState extends State<GameScreen> {
                 borderRadius: BorderRadius.circular(30),
                 border: Border.all(color: isJoker ? jokerGold : cardNeonColor, width: 2),
                 boxShadow: [
-                  BoxShadow(color: (isJoker ? jokerGold : cardNeonColor).withOpacity(0.5), blurRadius: 40, spreadRadius: 5),
+                  BoxShadow(color: (isJoker ? jokerGold : cardNeonColor).withValues(alpha: 0.5), blurRadius: 40, spreadRadius: 5),
                 ],
               ),
               child: Column(
@@ -142,7 +142,7 @@ class _GameScreenState extends State<GameScreen> {
                         color: const Color(0xFF1A0B2E),
                         borderRadius: BorderRadius.circular(15),
                         border: Border.all(color: isJoker ? jokerGold : cardNeonColor, width: 2),
-                        boxShadow: [BoxShadow(color: (isJoker ? jokerGold : cardNeonColor).withOpacity(0.4), blurRadius: 10)],
+                        boxShadow: [BoxShadow(color: (isJoker ? jokerGold : cardNeonColor).withValues(alpha: 0.4), blurRadius: 10)],
                       ),
                       child: Center(
                         child: Text("GÖREVİ GÖR", style: TextStyle(color: isJoker ? jokerGold : cardNeonAccent, fontWeight: FontWeight.bold, letterSpacing: 2)),
@@ -217,7 +217,7 @@ class _GameScreenState extends State<GameScreen> {
                       color: const Color(0xFF1A0B2E),
                       borderRadius: BorderRadius.circular(30),
                       border: Border.all(color: cardNeonColor, width: 2),
-                      boxShadow: [BoxShadow(color: cardNeonColor.withOpacity(0.5), blurRadius: 15)],
+                      boxShadow: [BoxShadow(color: cardNeonColor.withValues(alpha: 0.5), blurRadius: 15)],
                     ),
                     child: const Text("ŞANSLI KİŞİYİ SEÇ", style: TextStyle(color: cardNeonColor, fontSize: 18, fontWeight: FontWeight.bold, letterSpacing: 2)),
                   ),
@@ -240,7 +240,7 @@ class _GameScreenState extends State<GameScreen> {
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             border: Border.all(color: isHighlighted ? cardNeonColor : Colors.white10, width: 2),
-            boxShadow: isHighlighted ? [BoxShadow(color: cardNeonColor.withOpacity(0.5), blurRadius: 20)] : [],
+            boxShadow: isHighlighted ? [BoxShadow(color: cardNeonColor.withValues(alpha: 0.5), blurRadius: 20)] : [],
           ),
           child: CircleAvatar(radius: 38, backgroundImage: AssetImage(widget.players[index].avatarPath)),
         ),
@@ -260,8 +260,8 @@ class _GameScreenState extends State<GameScreen> {
       decoration: BoxDecoration(
         color: const Color(0xFF140B1F),
         borderRadius: BorderRadius.circular(15),
-        border: Border.all(color: activeColor.withOpacity(0.7), width: 2),
-        boxShadow: [BoxShadow(color: activeColor.withOpacity(0.3), blurRadius: 20)],
+        border: Border.all(color: activeColor.withValues(alpha: 0.7), width: 2),
+        boxShadow: [BoxShadow(color: activeColor.withValues(alpha: 0.3), blurRadius: 20)],
       ),
       child: Center(
         child: isMystery 
